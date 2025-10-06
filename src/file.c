@@ -7,6 +7,7 @@
 
 #include "file.h"
 #include "common.h"
+#include "parse.h"
 
 
 int create_db_file(char *filename) {
@@ -14,7 +15,23 @@ int create_db_file(char *filename) {
     if (fd < 0) {
         return -1; // File open/create error
     }
-    return fd;
+    //create db header
+    struct dbheader_t *header = NULL;
+    if (create_db_header(&header) != 0) {
+        close(fd);
+        return -1; // Header creation error
+    }
+
+    // Write the header to the file
+    ssize_t bytesWritten = write(fd, header, sizeof(struct dbheader_t));
+    if (bytesWritten != sizeof(struct dbheader_t)) {
+        free(header);
+        close(fd);
+        return -1; // Write error
+    }
+
+
+    return fd; // Success
 }
 
 int open_db_file(char *filename) {
