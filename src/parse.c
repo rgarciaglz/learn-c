@@ -84,12 +84,12 @@ int read_employees(int fd, struct dbheader_t * header, struct employee_t **emplo
         return -1; // No employees to read
     }
 
-    *employeesOut = (struct employee_t *)malloc(sizeof(struct employee_t) * header->count);
-    if (*employeesOut == NULL) {
+    struct employee_t *employees = (struct employee_t *)malloc(sizeof(struct employee_t) * header->count);
+    if (employees == NULL) {
         return -1; // Memory allocation failure
     }
 
-    ssize_t bytesRead = read(fd, *employeesOut, sizeof(struct employee_t) * header->count);
+    ssize_t bytesRead = read(fd, employees, sizeof(struct employee_t) * header->count);
     if (bytesRead != (ssize_t)(sizeof(struct employee_t) * header->count)) {
         free(*employeesOut);
         *employeesOut = NULL;
