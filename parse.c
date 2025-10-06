@@ -1,5 +1,8 @@
 #include "parse.h"
 #include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #define HEADER_MAGIC 0x4c4c4144
 #define NAME_LEN 256
 #define ADDRESS_LEN 256
