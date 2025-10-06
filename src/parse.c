@@ -49,6 +49,10 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     }
 
     *headerOut = header;
+    printf("Database Version: %u\n", header->version);
+    printf("Employee Count: %u\n", header->count);
+    printf("File Size: %u bytes\n", header->filesize);
+    fflush(stdout);
     return 0; // Success
 }
 
