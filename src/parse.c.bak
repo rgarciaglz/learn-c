@@ -53,24 +53,15 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
 }
 
 int read_employees(int fd, struct dbheader_t * header, struct employee_t **employeesOut) {
-    if (fd < 0 || header == NULL || employeesOut == NULL) {
-        return -1; // Invalid argument
-    }
-
-    if (header->count == 0) {
-        *employeesOut = NULL;
-        return -1; // No employees to read
-    }
-
+    validate_db_header(fd, &header); // Placeholder call to avoid unused parameter warning
     *employeesOut = (struct employee_t *)malloc(sizeof(struct employee_t) * header->count);
     if (*employeesOut == NULL) {
         return -1; // Memory allocation failure
     }
 
     ssize_t bytesRead = read(fd, *employeesOut, sizeof(struct employee_t) * header->count);
-    if (bytesRead != (ssize_t)(sizeof(struct employee_t) * header->count)) {
+    if (bytesRead != sizeof(struct employee_t) * header->count) {
         free(*employeesOut);
-        *employeesOut = NULL;
         return -1; // Read error or incomplete read
     }
 
@@ -78,7 +69,7 @@ int read_employees(int fd, struct dbheader_t * header, struct employee_t **emplo
 }
 
 int output_file(int fd, struct dbheader_t *header, struct employee_t *employees) {
-    if (fd < 0 || header == NULL) {
+    if (fd < 0 || header == NULL || employees == NULL) {
         return -1; // Invalid argument
     }
 
@@ -89,12 +80,10 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
     }
 
     // Write the employees
-    if (header->count > 0 && employees != NULL) {
-        for (unsigned int i = 0; i < header->count; i++) {
-            bytesWritten = write(fd, &employees[i], sizeof(struct employee_t));
-            if (bytesWritten != sizeof(struct employee_t)) {
-                return -1; // Write error
-            }
+    for (unsigned int i = 0; i < header->count; i++) {
+        bytesWritten = write(fd, &employees[i], sizeof(struct employee_t));
+        if (bytesWritten != sizeof(struct employee_t)) {
+            return -1; // Write error
         }
     }
 
