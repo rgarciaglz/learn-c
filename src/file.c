@@ -39,6 +39,13 @@ int open_db_file(char *filename) {
     if (fd < 0) {   
         return -1; // File open error
     }
+    //should validate header from file
+    struct dbheader_t *header = NULL;
+    if (validate_db_header(fd, &header) != 0) {
+        close(fd);
+        return -1; // Header validation error
+    }
+
     return fd; // Success, return file descriptor
 }
 
