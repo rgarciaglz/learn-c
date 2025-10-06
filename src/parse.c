@@ -9,6 +9,10 @@
 #define NAME_LEN 256
 #define ADDRESS_LEN 256
 
+int add_employee(struct dbheader_t *header, struct employee_t *employees, char *addstring) {
+
+    return 0;
+}
 
 int create_db_header(struct dbheader_t **headerOut) {
     if (headerOut == NULL) {
@@ -48,6 +52,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     header->version = ntohs(header->version);
     header->count = ntohs(header->count);
     header->filesize = ntohl(header->filesize);
+    header->magic = ntohl(header->magic);
 
     if (header->magic != HEADER_MAGIC) {
         free(header);
@@ -67,10 +72,6 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     }
 
     *headerOut = header;
-    printf("Database Version: %u\n", header->version);
-    printf("Employee Count: %u\n", header->count);
-    printf("File Size: %u bytes\n", header->filesize);
-    fflush(stdout);
     return 0; // Success
 }
 
@@ -105,20 +106,15 @@ int output_file(int fd, struct dbheader_t *header, struct employee_t *employees)
         return -1; // Invalid argument
     }
 
+    header->version = htons(header->version);
+    header->count = htons(header->count);
+    header->filesize = htonl(header->filesize);
+    header->magic = htonl(header->magic);
     // Write the header
+    lseek(fd, 0, SEEK_SET);
     ssize_t bytesWritten = write(fd, header, sizeof(struct dbheader_t));
     if (bytesWritten != sizeof(struct dbheader_t)) {
         return -1; // Write error
-    }
-
-    // Write the employees
-    if (header->count > 0 && employees != NULL) {
-        for (unsigned int i = 0; i < header->count; i++) {
-            bytesWritten = write(fd, &employees[i], sizeof(struct employee_t));
-            if (bytesWritten != sizeof(struct employee_t)) {
-                return -1; // Write error
-            }
-        }
     }
 
     return 0;
