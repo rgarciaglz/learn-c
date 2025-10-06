@@ -41,11 +41,27 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
     if (bytesRead != sizeof(struct dbheader_t)) {
         free(header);
         return -1; // Read error or incomplete read
-    }
+    }    
+
+    header->version = ntohs(header->version);
+    header->count = ntohs(header->count);
+    header->filesize = ntohl(header->filesize);
 
     if (header->magic != HEADER_MAGIC) {
         free(header);
         return -1; // Invalid magic number
+    }
+
+    if (header->version != 1) {
+        free(header);
+        return -1; // Unsupported version
+    }
+
+    struct stat dbstat = {0};
+    fstat(fd, &dbstat);
+    if (dbstat.st_size != header->filesize) {
+        free(header);
+        return -1; // File size mismatch
     }
 
     *headerOut = header;
