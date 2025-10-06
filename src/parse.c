@@ -96,6 +96,7 @@ int read_employees(int fd, struct dbheader_t * header, struct employee_t **emplo
         return -1; // Read error or incomplete read
     }
 
+    *employeesOut = employees;
     return 0; // Success
 }
 
